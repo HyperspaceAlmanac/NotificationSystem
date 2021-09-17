@@ -10,10 +10,10 @@ namespace NotificationSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SupervisorController : ControllerBase
+    public class EventController : ControllerBase
     {
         public ApplicationDbContext _context;
-        public SupervisorController(ApplicationDbContext context)
+        public EventController(ApplicationDbContext context)
         {
             _context = context;
         }
