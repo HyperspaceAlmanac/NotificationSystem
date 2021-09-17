@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NotificationSystem.Data;
 using NotificationSystem.DTO;
+using NotificationSystem.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace NotificationSystem.Controllers
 {
@@ -44,7 +46,88 @@ namespace NotificationSystem.Controllers
             }
         }
         [HttpPost("supervisor/new")]
-        public IActionResult NewSupervisor()
+        public async Task<IActionResult> NewSupervisor([FromBody] NewSupervisorRequest request)
+        {
+            TokenResponse response = new TokenResponse() { Result = "Success", Token = "", Message = "" };
+            try
+            {
+                int count = await _context.Supervisors.Where(s => s.UserName == request.UserName).CountAsync();
+                if (count > 0)
+                {
+                    response.Result = "Error";
+                    response.Message = "Username is already in use";
+                }
+                else
+                {
+                    Supervisor supervisor = new Supervisor()
+                    {
+                        UserName = request.UserName,
+                        FirstName = request.FirstName,
+                        LastName = request.LastName,
+                        HashedPassword = request.HashedPassword
+                    };
+                    await _context.AddAsync(supervisor);
+                    await _context.SaveChangesAsync();
+                    SupervisorToken token = new SupervisorToken()
+                    {
+                        SupervisorId = supervisor.Id,
+                        Token = GenerateToken(),
+                        Expiration = DateTime.Now.AddHours(1)
+                    };
+                    await _context.AddAsync(token);
+                    await _context.SaveChangesAsync();
+                    response.Token = token.Token;
+                }
+                return Ok(response);
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
+        }
+        [HttpPost("user/new")]
+        public async Task<IActionResult> NewUser([FromBody] NewUserRequest request)
+        {
+            TokenResponse response = new TokenResponse() { Result = "Success", Token = "", Message = "" };
+            try
+            {
+                int count = await _context.Users.Where(s => s.UserName == request.UserName).CountAsync();
+                if (count > 0)
+                {
+                    response.Result = "Error";
+                    response.Message = "Username is already in use";
+                }
+                else
+                {
+                    User user = new User()
+                    {
+                        UserName = request.UserName,
+                        FirstName = request.FirstName,
+                        LastName = request.LastName,
+                        HashedPassword = request.HashedPassword
+                    };
+                    await _context.AddAsync(user);
+                    await _context.SaveChangesAsync();
+                    UserToken token = new UserToken()
+                    {
+                        UserId = user.Id,
+                        Token = GenerateToken(),
+                        Expiration = DateTime.Now.AddHours(1)
+                    };
+                    await _context.AddAsync(token);
+                    await _context.SaveChangesAsync();
+                    response.Token = token.Token;
+                }
+                return Ok(response);
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
+        }
+
+        [HttpPost("subscribe")]
+        public IActionResult SubsribeToSupervisor()
         {
             try
             {
@@ -56,8 +139,36 @@ namespace NotificationSystem.Controllers
                 return StatusCode(500);
             }
         }
-        [HttpPost("user/new")]
-        public IActionResult NewUser()
+
+        [HttpPost("sendNotification")]
+        public IActionResult SendNotification(int id)
+        {
+            try
+            {
+                // Grab list of supervisors and their ID
+                return Ok();
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
+        }
+        
+        [HttpPost("supervisor/signin")]
+        public IActionResult SupervisorSignIn()
+        {
+            try
+            {
+                // Grab list of supervisors and their ID
+                return Ok();
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
+        }
+        [HttpPost("user/signin")]
+        public IActionResult UserSignIn()
         {
             try
             {
@@ -96,58 +207,6 @@ namespace NotificationSystem.Controllers
                 return StatusCode(500);
             }
         }
-        [HttpPost("subscribe")]
-        public IActionResult SubsribeToSupervisor()
-        {
-            try
-            {
-                // Grab list of supervisors and their ID
-                return Ok();
-            }
-            catch
-            {
-                return StatusCode(500);
-            }
-        }
-        [HttpPost("sendNotification")]
-        public IActionResult SendNotification(int id)
-        {
-            try
-            {
-                // Grab list of supervisors and their ID
-                return Ok();
-            }
-            catch
-            {
-                return StatusCode(500);
-            }
-        }
-        [HttpPost("supervisor/signin")]
-        public IActionResult SupervisorSignIn()
-        {
-            try
-            {
-                // Grab list of supervisors and their ID
-                return Ok();
-            }
-            catch
-            {
-                return StatusCode(500);
-            }
-        }
-        [HttpPost("user/signin")]
-        public IActionResult UserSignIn()
-        {
-            try
-            {
-                // Grab list of supervisors and their ID
-                return Ok();
-            }
-            catch
-            {
-                return StatusCode(500);
-            }
-        }
 
         // utility functions
         private async Task<bool> TokenValid(string userName, string Token, bool supervisor)
@@ -166,6 +225,24 @@ namespace NotificationSystem.Controllers
                 return matches.Count == 1;
             }
             
+        }
+
+        private string GenerateToken()
+        {
+            return "";
+        }
+
+        private bool PhoneNumberValidation(string phoneNumber)
+        {
+            Regex rx = new Regex(@"+1\d{10}");
+            if (phoneNumber.Length != 12)
+            {
+                return false;
+            }
+            else
+            {
+                return rx.IsMatch(phoneNumber);
+            }
         }
     }
 }
