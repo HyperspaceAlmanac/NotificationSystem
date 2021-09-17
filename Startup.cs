@@ -30,6 +30,7 @@ namespace NotificationSystem
         {
             services.AddDbContext<ApplicationDbContext>(opts =>
                 opts.UseSqlServer(Configuration.GetConnectionString("sqlConnection")));
+            services.AddTransient<TwilioSend>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

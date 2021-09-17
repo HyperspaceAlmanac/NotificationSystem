@@ -12,13 +12,16 @@ namespace NotificationSystem.Controllers
     [ApiController]
     public class EventController : ControllerBase
     {
-        public ApplicationDbContext _context;
-        public EventController(ApplicationDbContext context)
+        private ApplicationDbContext _context;
+        private TwilioSend _twilio;
+        public EventController(ApplicationDbContext context, TwilioSend twilio)
         {
             _context = context;
+            _twilio = twilio;
         }
 
-        [HttpGet("supervisors")]
+        [HttpPut("Supervisors")]
+        //async Task<IActionResult>
         public IActionResult GetSupervisors()
         {
             try
@@ -31,7 +34,7 @@ namespace NotificationSystem.Controllers
                 return StatusCode(500);
             }
         }
-        [HttpPost("supervisor")]
+        [HttpPost("supervisor/new")]
         public IActionResult NewSupervisor()
         {
             try
@@ -44,7 +47,7 @@ namespace NotificationSystem.Controllers
                 return StatusCode(500);
             }
         }
-        [HttpPost("user")]
+        [HttpPost("user/new")]
         public IActionResult NewUser()
         {
             try
@@ -84,8 +87,8 @@ namespace NotificationSystem.Controllers
                 return StatusCode(500);
             }
         }
-        [HttpPost("subscribe/{id}")]
-        public IActionResult SubsribeToSupervisor(int id)
+        [HttpPost("subscribe")]
+        public IActionResult SubsribeToSupervisor()
         {
             try
             {
