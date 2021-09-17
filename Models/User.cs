@@ -15,5 +15,6 @@ namespace NotificationSystem.Models
         public string UserName { get; set; }
         public string HashedPassword { get; set; }
         public string PhoneNumber { get; set; }
+        public bool Supervisor { get; set; }
     }
 }
