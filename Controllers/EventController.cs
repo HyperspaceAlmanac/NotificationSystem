@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NotificationSystem.Data;
+using NotificationSystem.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,13 +23,20 @@ namespace NotificationSystem.Controllers
         }
 
         [HttpPut("Supervisors")]
-        //async Task<IActionResult>
-        public IActionResult GetSupervisors()
+        public async Task<IActionResult> GetSupervisors([FromBody] GetSupervisorsRequest request)
         {
+            GetSupervisorsResponse response = new GetSupervisorsResponse() { Result = "Success" }; 
             try
             {
-                // Grab list of supervisors and their ID
-                return Ok();
+                if (await TokenValid(request.UserName, request.Token, request.Supervisor))
+                {
+                    response.Supervisors = await _context.Supervisors.Select(s => SupervisorDTO.ToDTO(s)).ToListAsync<SupervisorDTO>();
+                }
+                else
+                {
+                    response.Result = "Invalid or Expired Token";
+                }
+                return Ok(response);
             }
             catch
             {
@@ -138,6 +147,25 @@ namespace NotificationSystem.Controllers
             {
                 return StatusCode(500);
             }
+        }
+
+        // utility functions
+        private async Task<bool> TokenValid(string userName, string Token, bool supervisor)
+        {
+            DateTime now = DateTime.Now;
+            if (supervisor)
+            {
+                var matches = await _context.SupervisorTokens.Include(s => s.Supervisor)
+                    .Where(t => t.Supervisor.UserName == userName && t.Token == Token && now < t.Expiration).ToListAsync();
+                return matches.Count == 1;
+            }
+            else
+            {
+                var matches = await _context.UserTokens.Include(s => s.User)
+                    .Where(t => t.User.UserName == userName && t.Token == Token && now < t.Expiration).ToListAsync();
+                return matches.Count == 1;
+            }
+            
         }
     }
 }
