@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace NotificationSystem.DTO
 {
-    public class SupervisorDTO
+    public class UserDTO
     {
         public int Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
 
-        public static SupervisorDTO ToDTO(Supervisor supervisor)
+        public static UserDTO ToDTO(User user)
         {
-            return new SupervisorDTO() { Id = supervisor.Id, FirstName = supervisor.FirstName, LastName = supervisor.LastName };
+            return new UserDTO() { Id = user.Id, FirstName = user.FirstName, LastName = user.LastName };
         }
     }
 }

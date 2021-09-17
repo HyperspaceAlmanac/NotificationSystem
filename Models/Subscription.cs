@@ -8,11 +8,11 @@ namespace NotificationSystem.Models
 {
     public class Subscription
     {
-        [ForeignKey("User")]
-        public int UserId { get; set; }
-        public User User { get; set; }
-        [ForeignKey("Supervisor")]
-        public int SupervisorId { get; set; }
-        public Supervisor Supervisor { get; set; }
+        [ForeignKey("Publisher")]
+        public int PublisherId { get; set; }
+        public User Publisher { get; set; }
+        [ForeignKey("Subscriber")]
+        public int SubscriberId { get; set; }
+        public User Subscriber { get; set; }
     }
 }

@@ -16,13 +16,11 @@ namespace NotificationSystem.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<Subscription>()
-                .HasKey(subscription => new { subscription.UserId, subscription.SupervisorId });
+                .HasKey(subscription => new { subscription.PublisherId, subscription.SubscriberId });
                 // For Composite primary key
         }
         public DbSet<Subscription> Subscriptions { get; set; }
-        public DbSet<Supervisor> Supervisors { get; set; }
         public DbSet<User> Users { get; set; }
-        public DbSet<SupervisorToken> SupervisorTokens { get; set; }
         public DbSet<UserToken> UserTokens { get; set; }
     }
 }

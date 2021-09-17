@@ -8,6 +8,6 @@ namespace NotificationSystem.DTO
     public class GetSupervisorsResponse
     {
         public string Result { get; set; }
-        public List<SupervisorDTO> Supervisors { get; set; }
+        public List<UserDTO> Supervisors { get; set; }
     }
 }

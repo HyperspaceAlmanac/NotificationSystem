@@ -30,9 +30,9 @@ namespace NotificationSystem.Controllers
             GetSupervisorsResponse response = new GetSupervisorsResponse() { Result = "Success" }; 
             try
             {
-                if (await TokenValid(request.UserName, request.Token, request.Supervisor))
+                if (await TokenValid(request.UserName, request.Token))
                 {
-                    response.Supervisors = await _context.Supervisors.Select(s => SupervisorDTO.ToDTO(s)).ToListAsync<SupervisorDTO>();
+                    response.Supervisors = await _context.Users.Where(u => u.Supervisor).Select(u => UserDTO.ToDTO(u)).ToListAsync<UserDTO>();
                 }
                 else
                 {
@@ -46,12 +46,12 @@ namespace NotificationSystem.Controllers
             }
         }
         [HttpPost("supervisor/new")]
-        public async Task<IActionResult> NewSupervisor([FromBody] NewSupervisorRequest request)
+        public async Task<IActionResult> NewSupervisor([FromBody] NewUserRequest request)
         {
             TokenResponse response = new TokenResponse() { Result = "Success", Token = "", Message = "" };
             try
             {
-                int count = await _context.Supervisors.Where(s => s.UserName == request.UserName).CountAsync();
+                int count = await _context.Users.Where(s => s.UserName == request.UserName).CountAsync();
                 if (count > 0)
                 {
                     response.Result = "Error";
@@ -59,18 +59,20 @@ namespace NotificationSystem.Controllers
                 }
                 else
                 {
-                    Supervisor supervisor = new Supervisor()
+                    User supervisor = new User()
                     {
                         UserName = request.UserName,
                         FirstName = request.FirstName,
                         LastName = request.LastName,
-                        HashedPassword = request.HashedPassword
+                        HashedPassword = request.HashedPassword,
+                        PhoneNumber = request.PhoneNumber,
+                        Supervisor = true
                     };
                     await _context.AddAsync(supervisor);
                     await _context.SaveChangesAsync();
-                    SupervisorToken token = new SupervisorToken()
+                    UserToken token = new UserToken()
                     {
-                        SupervisorId = supervisor.Id,
+                        UserId = supervisor.Id,
                         Token = GenerateToken(),
                         Expiration = DateTime.Now.AddHours(1)
                     };
@@ -104,7 +106,8 @@ namespace NotificationSystem.Controllers
                         UserName = request.UserName,
                         FirstName = request.FirstName,
                         LastName = request.LastName,
-                        HashedPassword = request.HashedPassword
+                        HashedPassword = request.HashedPassword,
+                        Supervisor = false
                     };
                     await _context.AddAsync(user);
                     await _context.SaveChangesAsync();
@@ -140,8 +143,8 @@ namespace NotificationSystem.Controllers
             }
         }
 
-        [HttpPost("sendNotification")]
-        public IActionResult SendNotification(int id)
+        [HttpPost("sendNotifications")]
+        public IActionResult SendNotifications(int id)
         {
             try
             {
@@ -154,26 +157,33 @@ namespace NotificationSystem.Controllers
             }
         }
         
-        [HttpPost("supervisor/signin")]
-        public IActionResult SupervisorSignIn()
-        {
-            try
-            {
-                // Grab list of supervisors and their ID
-                return Ok();
-            }
-            catch
-            {
-                return StatusCode(500);
-            }
-        }
         [HttpPost("user/signin")]
-        public IActionResult UserSignIn()
+        public async Task<IActionResult> UserSignIn([FromBody] SignInRequest request)
         {
+            TokenResponse response = new TokenResponse()
+            {
+                Result = "Success",
+                Message = ""
+            };
             try
             {
-                // Grab list of supervisors and their ID
-                return Ok();
+                UserToken token = await _context.UserTokens.Include(u => u.User)
+                    .Where(u => u.User.UserName == request.UserName && u.User.HashedPassword == request.HashedPassword)
+                    .FirstOrDefaultAsync();
+                if (token != null)
+                {
+                    token.Expiration = DateTime.Now.AddHours(1);
+                    token.Token = GenerateToken();
+                    _context.Update(token);
+                    await _context.SaveChangesAsync();
+                    response.Token = token.Token;
+                }
+                else
+                {
+                    response.Result = "Error";
+                    response.Message = "Invalid UserName or Incorrect Password";
+                }
+                return Ok(response);
             }
             catch
             {
@@ -209,22 +219,12 @@ namespace NotificationSystem.Controllers
         }
 
         // utility functions
-        private async Task<bool> TokenValid(string userName, string Token, bool supervisor)
+        private async Task<bool> TokenValid(string userName, string Token)
         {
             DateTime now = DateTime.Now;
-            if (supervisor)
-            {
-                var matches = await _context.SupervisorTokens.Include(s => s.Supervisor)
-                    .Where(t => t.Supervisor.UserName == userName && t.Token == Token && now < t.Expiration).ToListAsync();
-                return matches.Count == 1;
-            }
-            else
-            {
-                var matches = await _context.UserTokens.Include(s => s.User)
+            var matches = await _context.UserTokens.Include(s => s.User)
                     .Where(t => t.User.UserName == userName && t.Token == Token && now < t.Expiration).ToListAsync();
-                return matches.Count == 1;
-            }
-            
+            return matches.Count >= 1;    
         }
 
         private string GenerateToken()
