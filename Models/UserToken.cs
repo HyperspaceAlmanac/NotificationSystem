@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace NotificationSystem.Models
 {
-    public class User
+    public class UserToken
     {
         [Key]
         public int Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string UserName { get; set; }
-        public string HashedPassword { get; set; }
+        public int UserId { get; set; }
+        public string Token { get; set; }
+        public DateTime Expiration { get; set; }
+
     }
 }

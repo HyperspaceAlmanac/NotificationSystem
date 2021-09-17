@@ -57,6 +57,33 @@ namespace NotificationSystem.Controllers
                 return StatusCode(500);
             }
         }
+
+        [HttpPost("user/subscriptions")]
+        public IActionResult GetUserSubscriptions()
+        {
+            try
+            {
+                // Grab list of supervisors and their ID
+                return Ok();
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
+        }
+        [HttpPut("user/removeSubscription")]
+        public IActionResult RemoveSubscription()
+        {
+            try
+            {
+                // Grab list of supervisors and their ID
+                return Ok();
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
+        }
         [HttpPost("subscribe/{id}")]
         public IActionResult SubsribeToSupervisor(int id)
         {
