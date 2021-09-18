@@ -18,10 +18,13 @@ namespace NotificationSystem
             TwilioClient.Init(accountSid, authToken);
             foreach (String number in numbers)
             {
+                string temp = number;
+                /**
                 MessageResource.Create(
                     body: message,
                     from: new Twilio.Types.PhoneNumber(Secrets.TWILIO_NUMBER),
                     to: new Twilio.Types.PhoneNumber(number));
+                **/
             }
         }
     }

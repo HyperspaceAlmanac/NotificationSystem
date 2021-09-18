@@ -19,12 +19,12 @@ namespace NotificationSystem.Controllers
     {
         private ApplicationDbContext _context;
         private TwilioSend _twilio;
-        private List<String> _alphaNumerical;
+        private char[] _alphaNumerical;
         public EventController(ApplicationDbContext context, TwilioSend twilio)
         {
             _context = context;
             _twilio = twilio;
-            _alphaNumerical = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIKLMNOPQRSTUVWXYZ".Split().ToList<string>();
+            _alphaNumerical = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIKLMNOPQRSTUVWXYZ".ToCharArray();
         }
 
         [HttpPut("Supervisors")]
@@ -102,14 +102,18 @@ namespace NotificationSystem.Controllers
                     response.Result = "Error";
                     response.Message = "Username is already in use";
                 }
-                else
+                else if (!PhoneNumberValidation(request.PhoneNumber))
                 {
+                    response.Result = "Error";
+                    response.Message = "Invalid phone number. Please ues the +1xxxyyyzzzz format";
+                } else {
                     User user = new User()
                     {
                         UserName = request.UserName,
                         FirstName = request.FirstName,
                         LastName = request.LastName,
                         HashedPassword = request.HashedPassword,
+                        PhoneNumber = request.PhoneNumber,
                         Supervisor = false
                     };
                     await _context.AddAsync(user);
@@ -202,7 +206,7 @@ namespace NotificationSystem.Controllers
             }
         }
         
-        [HttpPost("user/signin")]
+        [HttpPost("user/SignIn")]
         public async Task<IActionResult> UserSignIn([FromBody] SignInRequest request)
         {
             TokenResponse response = new TokenResponse()
@@ -248,10 +252,10 @@ namespace NotificationSystem.Controllers
         private string GenerateToken()
         {
             Random rng = new Random();
-            List<string> token = new List<string>();
+            char[] token = new char[20];
             for (int i = 0; i < 20; i++)
             {
-                token.Add(_alphaNumerical[rng.Next(_alphaNumerical.Count)]);
+                token[i] = _alphaNumerical[rng.Next(_alphaNumerical.Length)];
             }
             return String.Join("", token);
         }
