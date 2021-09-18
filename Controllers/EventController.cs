@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using System.Security.Cryptography;
 
 namespace NotificationSystem.Controllers
 {
@@ -18,10 +19,12 @@ namespace NotificationSystem.Controllers
     {
         private ApplicationDbContext _context;
         private TwilioSend _twilio;
+        private List<String> _alphaNumerical;
         public EventController(ApplicationDbContext context, TwilioSend twilio)
         {
             _context = context;
             _twilio = twilio;
+            _alphaNumerical = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIKLMNOPQRSTUVWXYZ".Split().ToList<string>();
         }
 
         [HttpPut("Supervisors")]
@@ -130,12 +133,38 @@ namespace NotificationSystem.Controllers
         }
 
         [HttpPost("subscribe")]
-        public IActionResult SubsribeToSupervisor()
+        public async Task<IActionResult> SubsribeToSupervisor([FromBody] SubscribeRequest request)
         {
+            SimpleResponse response = new SimpleResponse() { Result = "Error", Message = "" };
             try
             {
-                // Grab list of supervisors and their ID
-                return Ok();
+                if (await TokenValid(request.UserName, request.Token))
+                {
+                    User supervisor = await _context.Users.Where(u => u.Id == request.SupervisorId && u.Supervisor == true).SingleOrDefaultAsync();
+                    User user = await _context.Users.Where(u => u.UserName == request.UserName).SingleOrDefaultAsync();
+                    if (supervisor != null && user != null)
+                    {
+
+                        Subscription sub = new Subscription()
+                        {
+                            PublisherId = supervisor.Id,
+                            SubscriberId = user.Id
+                        };
+                        await _context.Subscriptions.AddAsync(sub);
+                        await _context.SaveChangesAsync();
+                        response.Result = "Succes";
+                        response.Message = "Successfully Subscribed";
+                    }
+                    else
+                    {
+                        response.Message = "Invalid UserName or Supervisor Id";
+                    }
+                }
+                else
+                {
+                    response.Message = "The Token has either invalid or expired";
+                }
+                return Ok(response);
             }
             catch
             {
@@ -191,33 +220,6 @@ namespace NotificationSystem.Controllers
             }
         }
 
-        [HttpPost("user/subscriptions")]
-        public IActionResult GetUserSubscriptions()
-        {
-            try
-            {
-                // Grab list of supervisors and their ID
-                return Ok();
-            }
-            catch
-            {
-                return StatusCode(500);
-            }
-        }
-        [HttpPut("user/removeSubscription")]
-        public IActionResult RemoveSubscription()
-        {
-            try
-            {
-                // Grab list of supervisors and their ID
-                return Ok();
-            }
-            catch
-            {
-                return StatusCode(500);
-            }
-        }
-
         // utility functions
         private async Task<bool> TokenValid(string userName, string Token)
         {
@@ -229,12 +231,18 @@ namespace NotificationSystem.Controllers
 
         private string GenerateToken()
         {
-            return "";
+            Random rng = new Random();
+            List<string> token = new List<string>();
+            for (int i = 0; i < 20; i++)
+            {
+                token.Add(_alphaNumerical[rng.Next(_alphaNumerical.Count)]);
+            }
+            return String.Join("", token);
         }
 
         private bool PhoneNumberValidation(string phoneNumber)
         {
-            Regex rx = new Regex(@"+1\d{10}");
+            Regex rx = new Regex(@"\+1\d{10}");
             if (phoneNumber.Length != 12)
             {
                 return false;
