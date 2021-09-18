@@ -1,0 +1,192 @@
+{
+	"info": {
+		"_postman_id": "3880de68-48a8-4699-b283-9665487e95d4",
+		"name": "NotificationsAPI",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "CreateUserAccount",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"userName\": \"firstUser\",\r\n  \"hashedPassword\": \"aaaaaaaaaa\",\r\n  \"firstName\": \"John\",\r\n  \"lastName\": \"Smith\",\r\n  \"phoneNumber\": \"+12223334444\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:44310/api/Event/user/new",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "44310",
+					"path": [
+						"api",
+						"Event",
+						"user",
+						"new"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CreateSupervisorAccount",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"userName\": \"firstSupervisor\",\r\n  \"hashedPassword\": \"bbbbbbbbbb\",\r\n  \"firstName\": \"Jane\",\r\n  \"lastName\": \"Doe\",\r\n  \"phoneNumber\": \"+13334445555\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:44310/api/Event/supervisor/new",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "44310",
+					"path": [
+						"api",
+						"Event",
+						"supervisor",
+						"new"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetSupervisors",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"userName\": \"firstUser\",\r\n  \"token\": \"dc8V0KHEkIkiHjyuzO64\",\r\n  \"supervisor\": true\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:44310/api/Event/supervisors",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "44310",
+					"path": [
+						"api",
+						"Event",
+						"supervisors"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Subscribe",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"userName\": \"firstUser\",\r\n  \"token\": \"dc8V0KHEkIkiHjyuzO64\",\r\n  \"supervisorId\": 2\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:44310/api/Event/subscribe",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "44310",
+					"path": [
+						"api",
+						"Event",
+						"subscribe"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SendNotification",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"userName\": \"FirstSupervisor\",\r\n  \"token\": \"qx5lhNFfludIieDV3M6s\",\r\n  \"message\": \"Hello All Users\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:44310/api/Event/sendNotifications",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "44310",
+					"path": [
+						"api",
+						"Event",
+						"sendNotifications"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SignIn",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"userName\": \"firstUser\",\r\n  \"hashedPassword\": \"aaaaaaaaaa\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:44310/api/Event/user/SignIn",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "44310",
+					"path": [
+						"api",
+						"Event",
+						"user",
+						"SignIn"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -156,7 +156,7 @@ namespace NotificationSystem.Controllers
                         };
                         await _context.Subscriptions.AddAsync(sub);
                         await _context.SaveChangesAsync();
-                        response.Result = "Succes";
+                        response.Result = "Success";
                         response.Message = "Successfully Subscribed";
                     }
                     else
@@ -190,9 +190,16 @@ namespace NotificationSystem.Controllers
                 {
                     List<String> numbers = await _context.Subscriptions.Include(u => u.Subscriber).Include(u => u.Publisher)
                         .Where(u => u.Publisher.UserName == request.UserName).Select(u => u.Subscriber.PhoneNumber).ToListAsync();
-                    _twilio.SendNotifications(numbers, request.Message);
-                    response.Result = "Succes";
-                    response.Message = String.Format("Sent notifications to {0}", numbers.Count);
+                    if (numbers.Count == 0)
+                    {
+                        response.Message = "No subscribers found";
+                    }
+                    else
+                    {
+                        _twilio.SendNotifications(numbers, request.Message);
+                        response.Result = "Succes";
+                        response.Message = String.Format("Sent notifications to {0} {1}", numbers.Count, numbers.Count == 1 ? "user" : "users");
+                    }
                 }
                 else
                 {
