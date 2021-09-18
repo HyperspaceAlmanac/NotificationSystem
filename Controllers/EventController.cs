@@ -173,12 +173,28 @@ namespace NotificationSystem.Controllers
         }
 
         [HttpPost("sendNotifications")]
-        public IActionResult SendNotifications(int id)
+        public async Task<IActionResult> SendNotifications([FromBody] NotifyRequest request)
         {
+            SimpleResponse response = new SimpleResponse()
+            {
+                Result = "Error",
+                Message = ""
+            };
             try
             {
-                // Grab list of supervisors and their ID
-                return Ok();
+                if (await TokenValid(request.UserName, request.Token) == true)
+                {
+                    List<String> numbers = await _context.Subscriptions.Include(u => u.Subscriber).Include(u => u.Publisher)
+                        .Where(u => u.Publisher.UserName == request.UserName).Select(u => u.Subscriber.PhoneNumber).ToListAsync();
+                    _twilio.SendNotifications(numbers, request.Message);
+                    response.Result = "Succes";
+                    response.Message = String.Format("Sent notifications to {0}", numbers.Count);
+                }
+                else
+                {
+                    response.Message = "Invalid Token";
+                }
+                return Ok(response);
             }
             catch
             {

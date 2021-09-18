@@ -17,7 +17,17 @@ namespace NotificationSystem.Data
         {
             builder.Entity<Subscription>()
                 .HasKey(subscription => new { subscription.PublisherId, subscription.SubscriberId });
-                // For Composite primary key
+            builder.Entity<Subscription>()
+                .HasOne(typeof(User), "Publisher")
+                .WithMany()
+                .HasForeignKey("PublisherId")
+                .OnDelete(DeleteBehavior.Restrict);
+            builder.Entity<Subscription>()
+                .HasOne(typeof(User), "Subscriber")
+                .WithMany()
+                .HasForeignKey("SubscriberId")
+                .OnDelete(DeleteBehavior.Restrict);
+            // For Composite primary key
         }
         public DbSet<Subscription> Subscriptions { get; set; }
         public DbSet<User> Users { get; set; }
