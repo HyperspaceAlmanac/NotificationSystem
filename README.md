@@ -18,6 +18,12 @@ This repo is for a Visual Studio 2019 solution. To install and run it requires i
 
 The API will run locally through IIS Express
 
+Install Visual Studio 2019.
+
+Open the Solution.
+
+Run it.
+
 ## In Visual Studio's NuGet package manager, please install these packages:
 
 1. Microsoft Entity Framework for Object-Database Mapper.
