@@ -27,8 +27,8 @@ namespace NotificationSystem.Controllers
             _alphaNumerical = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIKLMNOPQRSTUVWXYZ".ToCharArray();
         }
 
-        [HttpPut("Supervisors")]
-        public async Task<IActionResult> GetSupervisors([FromBody] GetSupervisorsRequest request)
+        [HttpGet("Supervisors")]
+        public async Task<IActionResult> GetSupervisors([FromQuery] GetSupervisorsRequest request)
         {
             GetSupervisorsResponse response = new GetSupervisorsResponse() { Result = "Success" }; 
             try
@@ -136,8 +136,8 @@ namespace NotificationSystem.Controllers
             }
         }
 
-        [HttpPost("subscribe")]
-        public async Task<IActionResult> SubsribeToSupervisor([FromBody] SubscribeRequest request)
+        [HttpGet("subscribe")]
+        public async Task<IActionResult> SubsribeToSupervisor([FromQuery] SubscribeRequest request)
         {
             SimpleResponse response = new SimpleResponse() { Result = "Error", Message = "" };
             try
@@ -148,16 +148,23 @@ namespace NotificationSystem.Controllers
                     User user = await _context.Users.Where(u => u.UserName == request.UserName).SingleOrDefaultAsync();
                     if (supervisor != null && user != null)
                     {
-
-                        Subscription sub = new Subscription()
+                        if (await _context.Subscriptions.Where(s => s.PublisherId == supervisor.Id && s.SubscriberId == user.Id).CountAsync() > 0)
                         {
-                            PublisherId = supervisor.Id,
-                            SubscriberId = user.Id
-                        };
-                        await _context.Subscriptions.AddAsync(sub);
-                        await _context.SaveChangesAsync();
-                        response.Result = "Success";
-                        response.Message = "Successfully Subscribed";
+                            response.Message = "Already subscribed to this supervisor";
+                        }
+                        else
+                        {
+
+                            Subscription sub = new Subscription()
+                            {
+                                PublisherId = supervisor.Id,
+                                SubscriberId = user.Id
+                            };
+                            await _context.Subscriptions.AddAsync(sub);
+                            await _context.SaveChangesAsync();
+                            response.Result = "Success";
+                            response.Message = "Successfully Subscribed";
+                        }
                     }
                     else
                     {

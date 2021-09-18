@@ -70,19 +70,10 @@
 		{
 			"name": "GetSupervisors",
 			"request": {
-				"method": "PUT",
+				"method": "GET",
 				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n  \"userName\": \"firstUser\",\r\n  \"token\": \"dc8V0KHEkIkiHjyuzO64\",\r\n  \"supervisor\": true\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
 				"url": {
-					"raw": "https://localhost:44310/api/Event/supervisors",
+					"raw": "https://localhost:44310/api/Event/supervisors?userName=firstUser&token=dc8V0KHEkIkiHjyuzO64",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -92,6 +83,16 @@
 						"api",
 						"Event",
 						"supervisors"
+					],
+					"query": [
+						{
+							"key": "userName",
+							"value": "firstUser"
+						},
+						{
+							"key": "token",
+							"value": "dc8V0KHEkIkiHjyuzO64"
+						}
 					]
 				}
 			},
@@ -99,12 +100,15 @@
 		},
 		{
 			"name": "Subscribe",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
 			"request": {
-				"method": "POST",
+				"method": "GET",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"userName\": \"firstUser\",\r\n  \"token\": \"dc8V0KHEkIkiHjyuzO64\",\r\n  \"supervisorId\": 2\r\n}",
+					"raw": "",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -112,7 +116,7 @@
 					}
 				},
 				"url": {
-					"raw": "https://localhost:44310/api/Event/subscribe",
+					"raw": "https://localhost:44310/api/Event/subscribe?userName=firstUser&supervisorId=2&token=dc8V0KHEkIkiHjyuzO64",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -122,6 +126,20 @@
 						"api",
 						"Event",
 						"subscribe"
+					],
+					"query": [
+						{
+							"key": "userName",
+							"value": "firstUser"
+						},
+						{
+							"key": "supervisorId",
+							"value": "2"
+						},
+						{
+							"key": "token",
+							"value": "dc8V0KHEkIkiHjyuzO64"
+						}
 					]
 				}
 			},
